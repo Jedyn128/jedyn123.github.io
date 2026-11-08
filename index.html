@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MalariaFL Console</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Sign in -->
+  <div id="login" class="login">
+    <form class="login-card" id="login-form" autocomplete="off">
+      <div class="brand brand-lg"><span class="brand-mark">FL</span><span>MalariaFL Console</span></div>
+      <h1>Sign in</h1>
+      <p class="muted">Federated learning for malaria detection.</p>
+      <label class="field"><span>Email</span><input id="login-email" type="email" value="researcher@malariafl.org" required></label>
+      <label class="field"><span>Password</span><input id="login-password" type="password" value="demo123" required></label>
+      <p class="error" id="login-error"></p>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+      <p class="hint" id="login-note">Demo: researcher@malariafl.org / demo123</p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="app" hidden>
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">FL</span><span>MalariaFL</span></div>
+      <nav id="nav"></nav>
+      <div class="sidebar-foot">
+        <div class="server-status" id="server-status"></div>
+      </div>
+    </aside>
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menu-btn" aria-label="Menu">&#9776;</button>
+        <div class="project-name" id="project-name"></div>
+        <div class="topbar-right">
+          <div class="user" id="user-menu"></div>
+        </div>
+      </header>
+      <main id="view" class="view"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="toast-root"></div>
+
+  <!-- Supabase library (only used when js/config.js has your project details) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/fl.js"></script>
+  <script src="js/pages/overview.js"></script>
+  <script src="js/pages/facilities.js"></script>
+  <script src="js/pages/training.js"></script>
+  <script src="js/pages/compression.js"></script>
+  <script src="js/pages/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
