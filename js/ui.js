@@ -151,29 +151,13 @@
     settings: P('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
   };
 
-  /** A fake but stable QR-style pattern for enrolment codes (for display only). */
-  function qr(code) {
-    const r = DB.rng([...code].reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
-    const n = 25, s = 160 / n;
-    let out = `<svg class="qr" viewBox="0 0 160 160" role="img" aria-label="Enrolment QR code"><rect width="160" height="160" fill="#fff"/>`;
-    const finder = (x, y) => `<rect x="${x * s}" y="${y * s}" width="${7 * s}" height="${7 * s}" fill="#14171c"/><rect x="${(x + 1) * s}" y="${(y + 1) * s}" width="${5 * s}" height="${5 * s}" fill="#fff"/><rect x="${(x + 2) * s}" y="${(y + 2) * s}" width="${3 * s}" height="${3 * s}" fill="#14171c"/>`;
-    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
-      const inFinder = (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
-      if (!inFinder && r() < 0.48) out += `<rect x="${x * s}" y="${y * s}" width="${s}" height="${s}" fill="#14171c"/>`;
-    }
-    return out + finder(0, 0) + finder(n - 7, 0) + finder(0, n - 7) + '</svg>';
-  }
-
   // ------------------------------------------------------------ lookups
   const find = {
     project: id => DB.projects.find(p => p.id === id),
     facility: id => DB.facilities.find(f => f.id === id),
     device: id => DB.devices.find(d => d.id === id),
     staff: id => DB.staff.find(s => s.id === id),
-    profile: id => DB.profiles.find(p => p.id === id),
-    run: id => DB.runs.find(r => r.id === id),
     model: id => DB.models.find(m => m.id === id),
-    experiment: id => DB.experiments.find(e => e.id === id),
   };
 
   const inProject = {
@@ -182,10 +166,7 @@
       ? (find.facility(d.facilityId) || {}).projectId === DB.currentProject
       : (d.projectIds || []).includes(DB.currentProject)),
     staff: () => DB.staff.filter(s => (find.facility(s.facilityId) || {}).projectId === DB.currentProject),
-    runs: () => DB.runs.filter(r => r.projectId === DB.currentProject),
     models: () => DB.models.filter(m => m.projectId === DB.currentProject),
-    experiments: () => DB.experiments.filter(e => e.projectId === DB.currentProject),
-    reports: () => DB.reports.filter(r => r.projectId === DB.currentProject),
     activity: () => DB.activity.filter(a => a.projectId === DB.currentProject),
     phones: () => DB.devices.filter(d => d.facilityId && d.status !== 'revoked' && (find.facility(d.facilityId) || {}).projectId === DB.currentProject),
     updates: () => {
@@ -223,28 +204,6 @@
     return out;
   }
 
-  /** Devices that belong to a given project. */
-  const inProjectFor = pid => DB.devices.filter(d => d.facilityId
-    ? (find.facility(d.facilityId) || {}).projectId === pid
-    : (d.projectIds || []).includes(pid));
-
-  const last = arr => arr[arr.length - 1];
-
-  /** Summary numbers for a run. */
-  function runStats(run) {
-    const h = run.history;
-    const lastH = last(h);
-    const best = h.reduce((a, b) => (b.accuracy > (a ? a.accuracy : -1) ? b : a), null);
-    const prof = find.profile(run.profileId);
-    return {
-      last: lastH, best,
-      totalBytes: lastH ? lastH.totalBytes : 0,
-      perDevice: prof.bytes,
-      ratio: DB.profiles[0].bytes / prof.bytes,
-      roundsTo: target => { const x = h.find(r => r.accuracy >= target); return x ? x.round : null; },
-    };
-  }
-
   window.UI = {
-    publishedModel, counts, caseSeries, esc, fmt, badge, MODE, table, kpi, card, kv, progress, modal, confirmBox, toast, ICONS, qr, find, inProject, inProjectFor, last, runStats };
+    publishedModel, counts, caseSeries, esc, fmt, badge, MODE, table, kpi, card, kv, progress, modal, confirmBox, toast, ICONS, find, inProject };
 })();

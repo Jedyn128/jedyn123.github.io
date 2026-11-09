@@ -62,7 +62,6 @@
           toast(`Model ${version} created${publish ? ' and published' : ''}`);
           App.refresh();
         };
-        if (!Store.enabled) { finish(); return; }
         msg.textContent = 'Downloading updates…';
         Promise.all([Store.download(pub.headPath), ...ups.map(u => Store.download(u.path))])
           .then(([head, ...files]) => {
@@ -81,7 +80,6 @@
   // ------------------------------------------------------------ download for Colab
   function downloadUpdates() {
     const pub = publishedModel(), ups = waiting();
-    if (!Store.enabled) { toast('Downloading needs the database connection'); return; }
     toast('Preparing the download…');
     Promise.all([Store.download(pub.headPath), ...ups.map(u => Store.download(u.path))])
       .then(([head, ...files]) => {
@@ -126,9 +124,7 @@
         const id = nextModelId();
         msg.textContent = 'Uploading…';
         info.text().then(t => JSON.parse(t)).then(meta => {
-          const uploads = Store.enabled
-            ? Promise.all([Store.upload(`models/${id}/head.bin`, head), base ? Store.upload(`models/${id}/base.tflite`, base) : null])
-            : Promise.resolve();
+          const uploads = Promise.all([Store.upload(`models/${id}/head.bin`, head), base ? Store.upload(`models/${id}/base.tflite`, base) : null]);
           return uploads.then(() => {
             const compiled = meta.compiled_updates || [];
             const m = {
@@ -164,7 +160,7 @@
     const current = pub
       ? `<div class="grid g4">
           ${UI.kpi('Model in use', esc(pub.version), pub.publishedAt ? 'published ' + fmt.ago(pub.publishedAt) : '')}
-          ${UI.kpi('Accuracy', pub.accuracy != null ? fmt.pct(pub.accuracy) : '—', pub.accuracy != null ? 'on 5,512 NIH test images' : 'not tested')}
+          ${UI.kpi('Accuracy', pub.accuracy != null ? fmt.pct(pub.accuracy) : '—', pub.accuracy != null ? 'on the NIH test images' : 'not tested')}
           ${UI.kpi('Updates waiting', fmt.int(ups.length), ups.length ? 'ready to compile' : 'phones are training')}
           ${UI.kpi('Updates received', fmt.int(all.length), `${fmt.bytes(all.reduce((a, u) => a + u.bytes, 0))} in total`)}
         </div>`
@@ -193,7 +189,7 @@
         { label: 'Status', render: m => badge(m.status) },
         { label: '', render: m => `<div class="row" style="justify-content:flex-end;gap:6px">
             ${m.status !== 'published' && m.headPath ? `<button class="btn btn-sm" data-publish="${m.id}">Publish</button>` : ''}
-            ${Store.enabled && m.headPath ? `<button class="btn btn-sm" data-get="${m.id}">Download</button>` : ''}</div>` },
+            ${m.headPath ? `<button class="btn btn-sm" data-get="${m.id}">Download</button>` : ''}</div>` },
       ], models, { empty: 'No models yet.' }), { flush: true })}</div>
       <p class="small muted mt">Publishing a model sends it to every phone. Only updates trained from the model in use are compiled; older ones are left out.</p>`;
   }

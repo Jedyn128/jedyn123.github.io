@@ -1,6 +1,5 @@
 /* Connection settings.
- * Leave both empty to run the offline demo with made-up data.
- * To use Supabase, paste the values from Supabase > Project Settings > API:
+ * Paste the values from Supabase > Project Settings > API:
  *   supabaseUrl:     the "Project URL"
  *   supabaseAnonKey: the "anon public" key (safe to put in a web page;
  *                    the database rules in schema.sql decide who can do what) */

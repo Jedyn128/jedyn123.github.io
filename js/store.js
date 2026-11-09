@@ -5,12 +5,13 @@
  *   - saves changed rows back every few seconds,
  *   - fetches new updates, phones, cases and models every 10 seconds,
  *   - uploads and downloads model and update files (bucket "fl").
- * When it is not configured, Store.enabled is false and the dashboard runs the offline demo. */
+ * When it is not configured, Store.enabled is false and the dashboard asks for js/config.js to be filled in. */
 (function () {
   'use strict';
 
   const cfg = window.MFL_CONFIG || {};
-  const enabled = !!(cfg.supabaseUrl && cfg.supabaseAnonKey && window.supabase && window.supabase.createClient);
+  const configured = !!(cfg.supabaseUrl && cfg.supabaseAnonKey);
+  const enabled = configured && !!(window.supabase && window.supabase.createClient);
   const sb = enabled ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : null;
 
   // Tables the dashboard writes: DB key -> database table and the columns it may change.
@@ -210,5 +211,5 @@
     return data.signedUrl;
   }
 
-  window.Store = { enabled, signIn, restore, signOut, rpc, startLoops, sync, poll, remember, upload, download, fileUrl };
+  window.Store = { enabled, configured, signIn, restore, signOut, rpc, startLoops, sync, poll, remember, upload, download, fileUrl };
 })();

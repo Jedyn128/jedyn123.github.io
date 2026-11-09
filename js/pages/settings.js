@@ -29,7 +29,6 @@
                    ${UI.kv([['Email', esc(email)], ['Password', `<b class="mono">${pw}</b>`]])}`,
           }), 0);
         };
-        if (!Store.enabled) { finish(); return false; }
         msg.textContent = 'Creating…';
         Store.rpc('create_researcher', { p_name: name, p_email: email, p_role: 'Researcher', p_password: pw })
           .then(finish)
@@ -42,7 +41,6 @@
   function removeUser(u) {
     UI.confirmBox(`Remove ${u.name}?`, `${u.email} will no longer be able to sign in to the dashboard.`, () => {
       const done = () => { DB.users = DB.users.filter(x => x.email !== u.email); toast(u.name + ' removed'); App.refresh(); };
-      if (!Store.enabled) { done(); return; }
       Store.rpc('remove_researcher', { p_email: u.email }).then(done).catch(err => toast('Could not remove: ' + err.message));
     }, 'Remove');
   }

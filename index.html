@@ -9,15 +9,14 @@
 <body>
   <!-- Sign in -->
   <div id="login" class="login">
-    <form class="login-card" id="login-form" autocomplete="off">
+    <form class="login-card" id="login-form">
       <div class="brand brand-lg"><span class="brand-mark">FL</span><span>MalariaFL Console</span></div>
       <h1>Sign in</h1>
       <p class="muted">Federated learning for malaria detection.</p>
-      <label class="field"><span>Email</span><input id="login-email" type="email" value="researcher@malariafl.org" required></label>
-      <label class="field"><span>Password</span><input id="login-password" type="password" value="demo123" required></label>
+      <label class="field"><span>Email</span><input id="login-email" type="email" autocomplete="username" required></label>
+      <label class="field"><span>Password</span><input id="login-password" type="password" autocomplete="current-password" required></label>
       <p class="error" id="login-error"></p>
       <button class="btn btn-primary btn-block" type="submit">Sign in</button>
-      <p class="hint" id="login-note">Demo: researcher@malariafl.org / demo123</p>
     </form>
   </div>
 
@@ -45,7 +44,7 @@
   <div id="modal-root"></div>
   <div id="toast-root" class="toast-root"></div>
 
-  <!-- Supabase library (only used when js/config.js has your project details) -->
+  <!-- Supabase library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>

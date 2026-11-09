@@ -117,6 +117,9 @@
   });
 
   // ------------------------------------------------------------ sign in
+  const NOT_CONFIGURED = Store.configured
+    ? 'Could not load the Supabase library. Check the internet connection and reload the page.'
+    : 'The dashboard is not connected to a database. Add the Supabase Project URL and publishable key to js/config.js.';
   function start() {
     document.getElementById('login').hidden = true;
     document.getElementById('app').hidden = false;
@@ -124,15 +127,12 @@
     document.getElementById('user-menu').innerHTML =
       `<div class="avatar">${initials}</div><div class="small"><b>${UI.esc(DB.user.name)}</b><br><span class="muted">${DB.user.role}</span></div>`;
     document.getElementById('user-menu').onclick = () => UI.confirmBox('Sign out?', 'You will return to the sign-in page.', async () => {
-      try { sessionStorage.removeItem('mfl-signed-in'); } catch (_) { /* storage unavailable */ }
-      if (Store.enabled) await Store.signOut();
+      await Store.signOut();
       location.hash = '';
       location.reload();
     }, 'Sign out');
-    if (Store.enabled) Store.startLoops();
-    document.getElementById('server-status').innerHTML = Store.enabled
-      ? '<span class="dot dot-ok"></span>Database connected'
-      : '<span class="dot dot-off"></span>Offline demo (no database)';
+    Store.startLoops();
+    document.getElementById('server-status').innerHTML = '<span class="dot dot-ok"></span>Database connected';
     renderPicker();
     route();
   }
@@ -142,25 +142,17 @@
     const email = document.getElementById('login-email').value.trim().toLowerCase();
     const pw = document.getElementById('login-password').value;
     const errEl = document.getElementById('login-error');
-    if (Store.enabled) {
-      const btn = e.target.querySelector('button[type=submit]');
-      btn.disabled = true; btn.textContent = 'Signing in…'; errEl.textContent = '';
-      try {
-        await Store.signIn(email, pw);
-        start();
-      } catch (err) {
-        errEl.textContent = err.message;
-      } finally {
-        btn.disabled = false; btn.textContent = 'Sign in';
-      }
-      return;
+    if (!Store.enabled) { errEl.textContent = NOT_CONFIGURED; return; }
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Signing in…'; errEl.textContent = '';
+    try {
+      await Store.signIn(email, pw);
+      start();
+    } catch (err) {
+      errEl.textContent = err.message;
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign in';
     }
-    if (email !== DB.user.email || pw !== 'demo123') {
-      document.getElementById('login-error').textContent = 'Email or password is incorrect.';
-      return;
-    }
-    try { sessionStorage.setItem('mfl-signed-in', '1'); } catch (_) { /* storage unavailable */ }
-    start();
   });
 
 
@@ -171,11 +163,8 @@
 
   if (Store.enabled) {
     // Supabase keeps the session; skip the sign-in page if it is still valid.
-    document.getElementById('login-note').textContent = 'Connected to Supabase.';
     Store.restore().then(ok => { if (ok) start(); }).catch(err => { document.getElementById('login-error').textContent = err.message; });
   } else {
-    let signedIn = false;
-    try { signedIn = sessionStorage.getItem('mfl-signed-in') === '1'; } catch (_) { /* storage unavailable */ }
-    if (signedIn) start();
+    document.getElementById('login-error').textContent = NOT_CONFIGURED;
   }
 })();

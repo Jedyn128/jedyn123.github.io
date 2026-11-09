@@ -71,7 +71,6 @@
           App.refresh();
           setTimeout(() => showLogin(s, password, 'Account created'), 0);
         };
-        if (!Store.enabled) { finish(); return; }
         Store.sync()
           .then(() => Store.rpc('create_staff_account', { p_id: s.id, p_name: s.name, p_role: s.role, p_facility: s.facilityId, p_password: password }))
           .then(() => { Store.remember('staff', [s]); finish(); })
@@ -94,7 +93,6 @@
           DB.audit.unshift({ who: DB.user.name, action: `Reset the password of ${s.id}`, when: new Date() });
           setTimeout(() => showLogin(s, password, 'Password changed'), 0);
         };
-        if (!Store.enabled) { done(); return; }
         Store.rpc('reset_staff_password', { p_id: s.id, p_password: password })
           .then(done)
           .catch(err => toast('Could not reset the password: ' + err.message));
@@ -115,7 +113,7 @@
         { label: 'Staff', num: true, render: f => DB.staff.filter(s => s.facilityId === f.id && s.status === 'active').length },
         { label: 'Infected', num: true, render: f => `<span style="color:var(--pos)">${fmt.int(counts(f.id).infected)}</span>` },
         { label: 'Uninfected', num: true, render: f => fmt.int(counts(f.id).uninfected) },
-        { label: 'Not yet confirmed', num: true, render: f => fmt.int(counts(f.id).unconfirmed) },
+        { label: 'Unrecognised', num: true, render: f => fmt.int(counts(f.id).unconfirmed) },
       ], facs, { href: f => '#/facilities/' + f.id, empty: 'No facilities yet. Click Add facility.' }), { flush: true })}`;
   }
 
@@ -134,7 +132,7 @@
       <div class="grid g4">
         ${UI.kpi('Infected', `<span style="color:var(--pos)">${fmt.int(c.infected)}</span>`, 'confirmed by staff')}
         ${UI.kpi('Uninfected', fmt.int(c.uninfected), 'confirmed by staff')}
-        ${UI.kpi('Not yet confirmed', fmt.int(c.unconfirmed), 'captured, waiting for a label')}
+        ${UI.kpi('Unrecognised', fmt.int(c.unconfirmed), 'staff were not sure; not used for training')}
         ${UI.kpi('Updates sent', fmt.int(sent), 'to improve the model')}
       </div>
       <div class="mt">${card('Staff', table([
